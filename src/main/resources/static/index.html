@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0ea5e9" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Airoplane Ticket Service" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<title>Airoplane Ticket Service</title>
+<link rel="stylesheet" href="/styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand"><span class="plane">✈</span> Airoplane Ticket Service</div>
+    <nav class="links">
+      <button data-nav="search" class="active">Search</button>
+      <button data-nav="airports">Airports</button>
+      <button data-nav="bookings">My Bookings</button>
+      <button data-nav="admin" id="adminNav" style="display:none">Admin</button>
+    </nav>
+    <div class="auth-area">
+      <span id="userChip" class="user-chip" style="display:none"></span>
+      <button id="serverBtn" class="btn btn-sm" title="Server">⚙</button>
+      <button id="authBtn" class="btn btn-sm">Login</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- SEARCH -->
+  <section id="view-search" class="view">
+    <div class="hero">
+      <div class="sky-anim" aria-hidden="true">
+        <span class="cloud c1"></span>
+        <span class="cloud c2"></span>
+        <span class="cloud c3"></span>
+        <span class="jet">✈</span>
+      </div>
+      <h1>Book domestic flights in minutes</h1>
+      <p>Search → pick seats → pay (mock) → get instant e-ticket with PNR.</p>
+    </div>
+    <form id="searchForm" class="card search-card">
+      <div class="grid-4">
+        <label>From
+          <select id="fromSel"></select>
+        </label>
+        <button type="button" id="swapBtn" class="swap" title="Swap">⇄</button>
+        <label>To
+          <select id="toSel"></select>
+        </label>
+        <label>Date
+          <input type="date" id="dateInp" required />
+        </label>
+        <label>Travellers
+          <select id="paxSel"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+        </label>
+      </div>
+      <button class="btn btn-primary" type="submit">🔍 Search flights</button>
+    </form>
+    <div id="results" class="results"></div>
+    </section>
+
+  <!-- AIRPORTS + MAP -->
+  <section id="view-airports" class="view" style="display:none">
+    <div class="hero hero-sm">
+      <h1>Airport locations</h1>
+      <p>All airports served by Airoplane Ticket Service, plotted on the map.</p>
+    </div>
+    <div class="map-grid">
+      <div class="card map-card">
+        <div id="indiaMap"></div>
+      </div>
+      <div id="airportList" class="results" style="margin-top:0"></div>
+    </div>
+  </section>
+
+  <!-- BOOKINGS -->
+  <section id="view-bookings" class="view" style="display:none">
+    <h2>My bookings</h2>
+    <p class="muted">Login to see your e-tickets. Cancel anytime for instant refund (mock).</p>
+    <div id="myBookings" class="results"></div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="view-admin" class="view" style="display:none">
+    <h2>Admin dashboard</h2>
+    <div id="adminGate"></div>
+    <div id="adminBody">
+    <div id="statsRow" class="stats"></div>
+    <div class="tabs admin-tabs">
+      <button id="tabFlights" class="active">✈ Flights</button>
+      <button id="tabBookings">🎫 Bookings</button>
+    </div>
+    <div id="adminFlightsPane">
+    <div class="card admin-toolbar">
+      <input id="adminSearch" placeholder="Search flight no., airline, route..." />
+      <button class="btn btn-sm" id="adminSearchBtn">Search</button>
+      <button class="btn btn-sm" id="adminResetBtn" type="button">Reset</button>
+    </div>
+    <div class="card">
+      <h3 id="flightFormTitle">Add flight</h3>
+      <form id="flightForm" class="grid-4">
+        <input type="hidden" id="fId" />
+        <label>Airline<input id="fAirline" required placeholder="Airoplane Airways" /></label>
+        <label>Flight no.<input id="fNum" required placeholder="SJ-101" /></label>
+        <label>From<input id="fFrom" required placeholder="DEL" maxlength="3" /></label>
+        <label>To<input id="fTo" required placeholder="BOM" maxlength="3" /></label>
+        <label>Date<input id="fDate" type="date" required /></label>
+        <label>Departure<input id="fDep" type="time" required /></label>
+        <label>Arrival<input id="fArr" type="time" required /></label>
+        <label>Price (₹)<input id="fPrice" type="number" min="500" required /></label>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save flight</button>
+          <button class="btn" type="button" id="fReset">Reset</button>
+        </div>
+      </form>
+    </div>
+    <div id="adminFlights" class="results"></div>
+    </div>
+    <div id="adminBookingsPane" style="display:none">
+      <div class="card admin-toolbar">
+        <input id="bookingSearch" placeholder="Search PNR, flight, status..." />
+        <button class="btn btn-sm" id="bookingSearchBtn">Search</button>
+        <button class="btn btn-sm" id="bookingResetBtn" type="button">Reset</button>
+        <button class="btn btn-sm" id="bookingRefreshBtn" type="button">↻ Refresh</button>
+      </div>
+      <div id="adminBookings" class="results"></div>
+    </div>
+    </div>
+  </section>
+</main>
+
+<!-- BOOKING MODAL -->
+<div id="bookModal" class="modal" style="display:none">
+  <div class="modal-box wide">
+    <div class="modal-head"><h3 id="bookTitle">Complete booking</h3><button class="x" data-close="bookModal">✕</button></div>
+    <div class="book-grid">
+      <div>
+        <h4>1. Select seats (<span id="seatNeed"></span> needed)</h4>
+        <div id="seatMap" class="seatmap"></div>
+        <div class="legend"><span class="seat"></span> free <span class="seat taken"></span> taken <span class="seat sel"></span> selected</div>
+      </div>
+      <div>
+        <h4>2. Passengers</h4>
+        <div id="paxForms"></div>
+        <h4>3. Payment (mock)</h4>
+        <input id="cardInp" inputmode="numeric" placeholder="Test card 4111 1111 1111 1111" value="4111 1111 1111 1111" />
+        <div id="priceLine" class="price"></div>
+        <button id="payBtn" class="btn btn-primary btn-block">Pay & confirm booking</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TICKET MODAL -->
+<div id="ticketModal" class="modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-head"><h3>🎫 E-Ticket</h3><button class="x" data-close="ticketModal">✕</button></div>
+    <div id="ticketBody"></div>
+    <div class="row">
+      <button class="btn" onclick="window.print()">🖨 Print</button>
+      <button class="btn" data-close="ticketModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div id="authModal" class="modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="authTitle">Login</h3><button class="x" data-close="authModal">✕</button></div>
+    <div class="tabs"><button id="tabLogin" class="active">Login</button><button id="tabReg">Register</button></div>
+    <form id="authForm" class="stack">
+      <input id="aName" placeholder="Full name (register only)" style="display:none" />
+      <input id="aEmail" type="email" required placeholder="Enter your email" value="" />
+      <input id="aPass" type="password" required placeholder="Enter your password" value="" />
+      <button class="btn btn-primary btn-block" type="submit">Continue</button>
+      <p class="muted small">New here? Switch to Register to create an account.</p>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<footer class="foot">Airoplane Ticket Service · Java (JDK HttpServer) + HTML/CSS/JS · No external dependencies · Data stored in <code>data/*.json</code></footer>
+<script>
+if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0 && !window.Capacitor) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

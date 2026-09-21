@@ -1,0 +1,13 @@
+out/
+target/
+SkyJet.app/
+skyjet.log
+data/*.json
+.DS_Store
+mobile/node_modules/
+mobile/android/build/
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/android/capacitor-cordova-android-plugins/build/
+mobile/www/
+*.log

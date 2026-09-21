@@ -1,0 +1,19 @@
+{
+  "name": "skyjet-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Airoplane Ticket Service — native Android wrapper (Capacitor)",
+  "scripts": {
+    "sync-www": "rm -rf www && mkdir -p www && cp -r ../src/main/resources/static/* www/ && rm -f www/sw.js",
+    "sync": "npm run sync-www && npx cap sync android",
+    "build-apk": "npm run sync && bash build-apk.sh"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/app": "^7.1.0",
+    "@capacitor/core": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}
