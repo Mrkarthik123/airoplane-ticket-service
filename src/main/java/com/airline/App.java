@@ -33,9 +33,11 @@ public class App {
     public static void main(String[] args) throws Exception {
         int port = 8080;
         boolean openBrowser = false;
+        boolean ui = false;
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("--port") && i + 1 < args.length) port = Integer.parseInt(args[i + 1]);
             if (args[i].equals("--open-browser")) openBrowser = true;
+            if (args[i].equals("--ui")) ui = true;
         }
         String portEnv = System.getenv("PORT");
         if (portEnv != null && !portEnv.isBlank()) { try { port = Integer.parseInt(portEnv.trim()); } catch (Exception ignored) {} }
@@ -65,10 +67,14 @@ public class App {
         System.out.println("✈  Airoplane Ticket Service running at http://localhost:" + port);
         System.out.println("   Demo login: demo@skyjet.in / demo123   |   Admin: admin@skyjet.in / admin123");
         String url = "http://localhost:" + port;
-        if (isBundled() && !java.awt.GraphicsEnvironment.isHeadless()) {
-            DesktopApp.show(url, () -> server.stop(0));
+
+        boolean gui = !java.awt.GraphicsEnvironment.isHeadless();
+        if (gui && (isBundled() || ui)) {
+            // native desktop window (this is the app — no browser needed)
+            com.airline.ui.DesktopLauncher.launch(db, app.auth, app.flights, app.bookings, url);
+        } else if (openBrowser) {
+            openInBrowser(port);
         }
-        if (openBrowser || isBundled()) openInBrowser(port);
     }
 
     /** Shows a blocking error dialog (desktop app) or prints to stderr. */

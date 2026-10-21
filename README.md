@@ -9,18 +9,22 @@ Full flight-ticket booking app in **pure Java (no external dependencies)** + HTM
 - **Airport map** — real interactive map (Leaflet + OpenStreetMap) with airport locations and route network
 - **Persistence** — `data/*.json` files (flights, users, bookings)
 
-## 🖥️ Desktop app (macOS)
+## 🖥️ Desktop app (macOS) — native Java window
 
-- **`AiroplaneTicketService.app`** — native app with its own window (bundled Java runtime, custom plane icon).
-  Double-click it: a window shows the status, with **Open in Browser** and **Stop & Quit** buttons,
-  and the browser opens at `http://localhost:8080`.
+The app is a **native Java/Swing desktop application** (no browser needed):
+
+- **`AiroplaneTicketService.app`** — double-clickable app (bundled Java runtime, custom plane icon).
+  Opens a native window: login → **Search · Airports · My bookings · Admin** tabs, animated sky-and-plane
+  background, 30×6 seat map, passenger forms, mock payment, printable e-ticket.
   Already installed in `/Applications` as **Airoplane Ticket Service**.
-- **`AiroplaneTicketService.command`** — lightweight double-click launcher (needs Java 17+).
-- **`AiroplaneTicketService.jar`** — portable JAR, runs on any OS with Java 17+:
+- **`AiroplaneTicketService.command`** — double-click launcher for the same native window (needs Java 17+).
+- **`AiroplaneTicketService.jar`** — portable JAR (any OS with Java 17+):
   ```bash
-  java -jar AiroplaneTicketService.jar
+  java -jar AiroplaneTicketService.jar --ui
   ```
-- Stop the server: `lsof -ti tcp:8080 | xargs kill` (or the **Stop & Quit** button in the app window)
+- The HTTP server keeps running in the background on port 8080, so phones on the same Wi-Fi can still
+  reach the app at `http://<laptop-ip>:8080`.
+- Stop the server: `lsof -ti tcp:8080 | xargs kill` (or close the app window).
 - The app stores its data in `AiroplaneTicketService.app/Contents/app/data/`.
 - Copying the `.app` to another Mac may require a right-click → **Open** (unsigned local build).
 
@@ -91,7 +95,18 @@ src/main/java/com/airline/
   store/DataStore.java     ← JSON file DB + seed data
   service/AuthService.java, FlightService.java, BookingService.java
   util/Json.java, HttpUtil.java, Passwords.java
-src/main/resources/static/ ← index.html, styles.css, app.js
+  ui/                      ← native Swing desktop app
+    MainFrame.java         ← header + Search/Airports/Bookings/Admin tabs
+    LoginDialog.java       ← login + register
+    SearchPanel.java       ← search form + flight cards
+    AirportsPanel.java     ← painted map + airport list
+    BookingDialog.java     ← seat map, passengers, mock payment
+    TicketDialog.java      ← e-ticket with print
+    BookingsPanel.java     ← my bookings list
+    AdminPanel.java        ← stats, flight CRUD, all bookings
+    SkyPanel.java          ← animated plane background
+    Theme.java             ← colors, fonts, widget factories
+src/main/resources/static/ ← index.html, styles.css, app.js (web/PWA UI for phones)
 data/                      ← auto-created flights.json, users.json, bookings.json
 ```
 
