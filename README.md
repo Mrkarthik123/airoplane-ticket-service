@@ -1,5 +1,8 @@
 # ✈ Airoplane Ticket Service (Java)
 
+> 📄 **[ABSTRACT.md](ABSTRACT.md)** — project abstract, languages/technologies used, architecture diagram,
+> main code listings, feature summary, API reference, testing and future scope (for project display/submission).
+
 Full flight-ticket booking app in **pure Java (no external dependencies)** + HTML/CSS/JS frontend.
 
 - **Search & booking flow** — from/to/date, flight list, seat map (30×6), passengers, mock payment
