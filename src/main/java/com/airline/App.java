@@ -32,11 +32,15 @@ public class App {
 
     public static void main(String[] args) throws Exception {
         int port = 8080;
-        for (int i = 0; i < args.length - 1; i++) if (args[i].equals("--port")) port = Integer.parseInt(args[i + 1]);
+        boolean openBrowser = false;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("--port") && i + 1 < args.length) port = Integer.parseInt(args[i + 1]);
+            if (args[i].equals("--open-browser")) openBrowser = true;
+        }
         String portEnv = System.getenv("PORT");
         if (portEnv != null && !portEnv.isBlank()) { try { port = Integer.parseInt(portEnv.trim()); } catch (Exception ignored) {} }
 
-        Path dataDir = Paths.get("data");
+        Path dataDir = resolveDataDir();
         // when running from jar/classic layout, keep data next to working dir
         DataStore db = new DataStore(dataDir);
         db.load();
@@ -49,6 +53,50 @@ public class App {
         server.start();
         System.out.println("✈  Airoplane Ticket Service running at http://localhost:" + port);
         System.out.println("   Demo login: demo@skyjet.in / demo123   |   Admin: admin@skyjet.in / admin123");
+        if (openBrowser || isBundled()) openInBrowser(port);
+    }
+
+    /** True when running from a jpackage .app bundle (bundles open the browser automatically). */
+    private static boolean isBundled() {
+        Path p = Paths.get(System.getProperty("java.home", ""));
+        for (int i = 0; i < 6 && p != null; i++) {
+            if (p.getFileName() != null && "Contents".equals(p.getFileName().toString())) {
+                if (Files.isDirectory(p.resolve("app"))) return true;
+            }
+            p = p.getParent();
+        }
+        return false;
+    }
+
+    /** Data dir: SKYJET_DATA env, else inside a .app bundle, else ./data */
+    private static Path resolveDataDir() {
+        String env = System.getenv("SKYJET_DATA");
+        if (env != null && !env.isBlank()) return Paths.get(env);
+        Path p = Paths.get(System.getProperty("java.home", ""));
+        for (int i = 0; i < 6 && p != null; i++) {
+            if (p.getFileName() != null && "Contents".equals(p.getFileName().toString())) {
+                Path appDir = p.resolve("app");
+                if (Files.isDirectory(appDir)) return appDir.resolve("data");
+            }
+            p = p.getParent();
+        }
+        return Paths.get("data");
+    }
+
+    /** Opens the UI in the default browser (used by the desktop app). */
+    private static void openInBrowser(int port) {
+        Thread t = new Thread(() -> {
+            try { Thread.sleep(1200); } catch (InterruptedException ignored) { return; }
+            String url = "http://localhost:" + port;
+            String os = System.getProperty("os.name", "").toLowerCase();
+            try {
+                if (os.contains("mac")) new ProcessBuilder("open", url).start();
+                else if (os.contains("win")) new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", url).start();
+                else new ProcessBuilder("xdg-open", url).start();
+            } catch (Exception ignored) {}
+        });
+        t.setDaemon(true);
+        t.start();
     }
 
     // ---------------- static files ----------------

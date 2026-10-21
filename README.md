@@ -1,12 +1,33 @@
-# ✈ Airplane Ticket Service (Java)
+# ✈ Airoplane Ticket Service (Java)
 
 Full flight-ticket booking app in **pure Java (no external dependencies)** + HTML/CSS/JS frontend.
 
 - **Search & booking flow** — from/to/date, flight list, seat map (30×6), passengers, mock payment, instant e-ticket with PNR
 - **Auth + My bookings** — register/login (token), booking history, view/print ticket, cancel with refund
 - **Payments mock** — test card validation, fake `PAY-XXXX` transactions
-- **Admin dashboard** — revenue/booking stats, add/edit/delete flights
+- **Admin dashboard** — revenue/booking stats, add/edit/delete flights, all-bookings tab with search
+- **Airport map** — real interactive map (Leaflet + OpenStreetMap) with airport locations and route network
 - **Persistence** — `data/*.json` files (flights, users, bookings)
+
+## 🖥️ Desktop app (macOS)
+
+- **`AiroplaneTicketService.app`** — double-clickable native app (bundled Java runtime, custom plane icon).
+  It starts the server and opens the browser at `http://localhost:8080`.
+  Already installed in `/Applications` as **Airoplane Ticket Service**.
+- **`AiroplaneTicketService.command`** — lightweight double-click launcher (needs Java 17+).
+- **`AiroplaneTicketService.jar`** — portable JAR, runs on any OS with Java 17+:
+  ```bash
+  java -jar AiroplaneTicketService.jar
+  ```
+- Stop the server: `lsof -ti tcp:8080 | xargs kill`
+
+To rebuild the app files after code changes:
+```bash
+./run.sh                       # compiles to out/ and starts the server
+jar --create --file AiroplaneTicketService.jar --main-class com.airline.App -C out .
+jpackage --name AiroplaneTicketService --input <dir-with-jar> \
+  --main-jar AiroplaneTicketService.jar --type app-image --dest . --app-version 1.0.0
+```
 
 ## 📱 Mobile app (Android APK + PWA)
 
@@ -15,29 +36,6 @@ Full flight-ticket booking app in **pure Java (no external dependencies)** + HTM
 - **PWA** — on your phone browser open `http://<laptop-ip>:8080` → Add to Home Screen.
   Works on Android + iPhone, runs fullscreen, shell works offline.
 - Details + rebuild steps: [`mobile/README.md`](mobile/README.md).
-
-## Run as an app (macOS)
-
-**Option A — double-clickable app (easiest):**
-- Double-click **`SkyJet.app`** in Finder (right-click → Open the first time).
-- It starts the server and serves the UI at `http://localhost:8080`.
-
-**Option B — double-click launcher:** double-click **`SkyJet.command`**
-(it starts the server and opens your browser automatically).
-
-**Option C — portable JAR (works on any OS with Java 17+):**
-```bash
-java -jar SkyJet.jar
-# open http://localhost:8080
-```
-
-To rebuild the app files after code changes:
-```bash
-javac -encoding UTF-8 -d out $(find src/main/java -name "*.java") \
-  && cp -r src/main/resources/static/* out/static/ \
-  && jar --create --file SkyJet.jar --main-class com.airline.App -C out . \
-  && jpackage --name SkyJet --input . --main-jar SkyJet.jar --type app-image --dest . --app-version 1.0.0
-```
 
 ## Run from source (no Maven needed — just Java 17+)
 
@@ -99,3 +97,4 @@ data/                      ← auto-created flights.json, users.json, bookings.j
 - Passwords are SHA-256 hashed (demo-grade; use bcrypt in production).
 - Seats are allocated per-flight and freed on cancellation; double-booking is prevented server-side.
 - To reset demo data, stop the server and delete `data/*.json`.
+- The desktop app stores its data in `AiroplaneTicketService.app/Contents/app/data/`.

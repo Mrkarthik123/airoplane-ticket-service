@@ -1,5 +1,6 @@
 out/
 target/
+AiroplaneTicketService.app/
 SkyJet.app/
 skyjet.log
 data/*.json

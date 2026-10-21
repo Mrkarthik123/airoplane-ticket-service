@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 
-/** Generates SkyJet app icons (paper-plane on navy gradient). Usage: java IconGen <outDir> */
+/** Generates Airoplane Ticket Service app icons (paper-plane on navy gradient). Usage: java IconGen <outDir> */
 public class IconGen {
     public static void main(String[] a) throws Exception {
         File out = new File(a.length > 0 ? a[0] : ".");
@@ -13,8 +13,24 @@ public class IconGen {
         draw(new File(out, "icon-512.png"), 512, false);
         draw(new File(out, "maskable-512.png"), 512, true);
         draw(new File(out, "apple-touch-icon.png"), 180, false);
+        // macOS .iconset source sizes
+        int[] set = {16, 32, 64, 128, 256, 512, 1024};
+        for (int s : set) {
+            draw(new File(out, "icon_" + s + ".png"), s, false);
+            if (s < 1024) {
+                BufferedImage img = read(new File(out, "icon_" + s + ".png"));
+                BufferedImage two = new BufferedImage(s * 2, s * 2, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = two.createGraphics();
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                g.drawImage(img, 0, 0, s * 2, s * 2, null);
+                g.dispose();
+                ImageIO.write(two, "png", new File(out, "icon_" + (s * 2) + "@2x.png"));
+            }
+        }
         System.out.println("icons written to " + out.getAbsolutePath());
     }
+
+    static BufferedImage read(File f) throws Exception { return ImageIO.read(f); }
 
     static void draw(File f, int s, boolean maskable) throws Exception {
         BufferedImage img = new BufferedImage(s, s, BufferedImage.TYPE_INT_ARGB);
