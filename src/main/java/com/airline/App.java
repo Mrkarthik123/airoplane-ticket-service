@@ -46,14 +46,38 @@ public class App {
         db.load();
         App app = new App(db);
 
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        HttpServer server;
+        try {
+            server = HttpServer.create(new InetSocketAddress(port), 0);
+        } catch (java.net.BindException e) {
+            String msg = "Port " + port + " is already in use.\n\n"
+                    + "Another copy of Airoplane Ticket Service may already be running.\n"
+                    + "Stop it with:  lsof -ti tcp:" + port + " | xargs kill\n\n"
+                    + "Then open:  http://localhost:" + port;
+            System.err.println(msg);
+            showError("Cannot start server", msg);
+            return;
+        }
         server.createContext("/api/", app::handleApi);
         server.createContext("/", app::handleStatic);
         server.setExecutor(Executors.newFixedThreadPool(8));
         server.start();
         System.out.println("✈  Airoplane Ticket Service running at http://localhost:" + port);
         System.out.println("   Demo login: demo@skyjet.in / demo123   |   Admin: admin@skyjet.in / admin123");
+        String url = "http://localhost:" + port;
+        if (isBundled() && !java.awt.GraphicsEnvironment.isHeadless()) {
+            DesktopApp.show(url, () -> server.stop(0));
+        }
         if (openBrowser || isBundled()) openInBrowser(port);
+    }
+
+    /** Shows a blocking error dialog (desktop app) or prints to stderr. */
+    private static void showError(String title, String message) {
+        if (java.awt.GraphicsEnvironment.isHeadless()) return;
+        try {
+            javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(null, message, title, javax.swing.JOptionPane.ERROR_MESSAGE));
+            Thread.sleep(60000);
+        } catch (Exception ignored) {}
     }
 
     /** True when running from a jpackage .app bundle (bundles open the browser automatically). */

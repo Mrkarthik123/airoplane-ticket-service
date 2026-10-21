@@ -11,15 +11,18 @@ Full flight-ticket booking app in **pure Java (no external dependencies)** + HTM
 
 ## 🖥️ Desktop app (macOS)
 
-- **`AiroplaneTicketService.app`** — double-clickable native app (bundled Java runtime, custom plane icon).
-  It starts the server and opens the browser at `http://localhost:8080`.
+- **`AiroplaneTicketService.app`** — native app with its own window (bundled Java runtime, custom plane icon).
+  Double-click it: a window shows the status, with **Open in Browser** and **Stop & Quit** buttons,
+  and the browser opens at `http://localhost:8080`.
   Already installed in `/Applications` as **Airoplane Ticket Service**.
 - **`AiroplaneTicketService.command`** — lightweight double-click launcher (needs Java 17+).
 - **`AiroplaneTicketService.jar`** — portable JAR, runs on any OS with Java 17+:
   ```bash
   java -jar AiroplaneTicketService.jar
   ```
-- Stop the server: `lsof -ti tcp:8080 | xargs kill`
+- Stop the server: `lsof -ti tcp:8080 | xargs kill` (or the **Stop & Quit** button in the app window)
+- The app stores its data in `AiroplaneTicketService.app/Contents/app/data/`.
+- Copying the `.app` to another Mac may require a right-click → **Open** (unsigned local build).
 
 To rebuild the app files after code changes:
 ```bash
