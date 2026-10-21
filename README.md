@@ -2,6 +2,9 @@
 
 > 📄 **[ABSTRACT.md](ABSTRACT.md)** — project abstract, languages/technologies used, architecture diagram,
 > main code listings, feature summary, API reference, testing and future scope (for project display/submission).
+>
+> 🎤 **[PRESENTATION.md](PRESENTATION.md)** — the same project written as a spoken script you can read
+> straight from the screen: 6-minute presentation, a 60-second short version, and likely Q&A with answers.
 
 Full flight-ticket booking app in **pure Java (no external dependencies)** + HTML/CSS/JS frontend.
 

@@ -493,3 +493,6 @@ Java Swing, HTML/JavaScript and Android, which is the central engineering lesson
 ---
 
 *Repository: `https://github.com/Mrkarthik123/airoplane-ticket-service` · Branch: `main`*
+
+*Spoken version of this abstract: see **[PRESENTATION.md](PRESENTATION.md)** — a 6-minute read-aloud script,
+a 60-second short version, and prepared Q&A.*
