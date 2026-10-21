@@ -48,7 +48,39 @@ def main() -> None:
         "/Keywords": "Java, Swing, flight booking, admin approval, e-ticket, PWA",
     })
 
+    # Chrome embeds a fresh copy of the same subset font on every page; after
+    # merging the footer overlay those copies are no longer identical objects,
+    # so they are shared manually to keep the file small.
+    shared: dict[bytes, object] = {}
+    for page in writer.pages:
+        resources = page.get("/Resources")
+        if resources is None:
+            continue
+        fonts = resources.get_object().get("/Font")
+        if fonts is None:
+            continue
+        fonts = fonts.get_object()
+        for name in list(fonts.keys()):
+            font = fonts[name]
+            try:
+                key = font.get_data()
+            except Exception:
+                key = repr(font).encode("utf-8", "replace")
+            if key in shared:
+                fonts[name] = shared[key]
+            else:
+                shared[key] = font
+
+    # pypdf re-writes the merged content streams uncompressed, so they are
+    # deflated again here; without this the file is roughly four times larger.
+    for page in writer.pages:
+        try:
+            page.compress_content_streams()
+        except Exception:
+            pass
+
     with open(dst, "wb") as handle:
+        writer.compress_identical_objects()
         writer.write(handle)
 
     print(f"Stamped {total} pages -> {dst}")
