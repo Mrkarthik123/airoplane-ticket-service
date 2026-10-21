@@ -2,6 +2,7 @@ package com.airline.ui;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
@@ -17,6 +18,7 @@ public final class Theme {
     public static final Color OK = new Color(0x16A34A);
     public static final Color BAD = new Color(0xDC2626);
     public static final Color LINE = new Color(0xE2E8F0);
+    public static final Color INPUT_BG = new Color(0xF8FAFC);
     public static final Color NAVY = new Color(0x0F172A);
     public static final Color SLATE = new Color(0x1E293B);
 
@@ -31,9 +33,10 @@ public final class Theme {
         b.setBackground(CARD);
         b.setForeground(INK);
         b.setFocusPainted(false);
+        b.setOpaque(true);
+        b.setContentAreaFilled(true);
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        b.setBorder(new LineBorder(LINE));
-        b.setBorder(new EmptyBorder(8, 14, 8, 14));
+        b.setBorder(new CompoundBorder(new LineBorder(LINE), new EmptyBorder(8, 14, 8, 14)));
         return b;
     }
 
@@ -41,7 +44,7 @@ public final class Theme {
         JButton b = button(text);
         b.setBackground(PRIMARY);
         b.setForeground(Color.WHITE);
-        b.setBorder(new EmptyBorder(9, 18, 9, 18));
+        b.setBorder(new CompoundBorder(new LineBorder(PRIMARY_DARK), new EmptyBorder(9, 18, 9, 18)));
         return b;
     }
 
@@ -51,12 +54,19 @@ public final class Theme {
         return b;
     }
 
+    /** Visible outline + padding, so inputs never blend into the white card. */
+    public static Border inputBorder() {
+        return new CompoundBorder(new LineBorder(LINE), new EmptyBorder(8, 10, 8, 10));
+    }
+
     public static JTextField field(int cols) {
         JTextField f = new JTextField(cols);
         f.setFont(font(14));
         f.setForeground(INK);
-        f.setBorder(new LineBorder(LINE));
-        f.setBorder(new EmptyBorder(8, 10, 8, 10));
+        f.setBackground(INPUT_BG);
+        f.setCaretColor(INK);
+        f.setOpaque(true);
+        f.setBorder(inputBorder());
         return f;
     }
 
@@ -64,8 +74,10 @@ public final class Theme {
         JPasswordField f = new JPasswordField(cols);
         f.setFont(font(14));
         f.setForeground(INK);
-        f.setBorder(new LineBorder(LINE));
-        f.setBorder(new EmptyBorder(8, 10, 8, 10));
+        f.setBackground(INPUT_BG);
+        f.setCaretColor(INK);
+        f.setOpaque(true);
+        f.setBorder(inputBorder());
         return f;
     }
 
@@ -74,8 +86,7 @@ public final class Theme {
         c.setFont(font(14));
         c.setBackground(CARD);
         c.setForeground(INK);
-        c.setBorder(new LineBorder(LINE));
-        c.setBorder(new EmptyBorder(6, 8, 6, 8));
+        c.setBorder(new CompoundBorder(new LineBorder(LINE), new EmptyBorder(6, 8, 6, 8)));
         return c;
     }
 

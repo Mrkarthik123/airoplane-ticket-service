@@ -12,9 +12,9 @@ public class LoginDialog extends JDialog {
     private String token;
     private boolean registerMode = false;
 
-    private final JTextField nameField = Theme.field(20);
-    private final JTextField emailField = Theme.field(20);
-    private final JPasswordField passField = Theme.passwordField(20);
+    private final JTextField nameField = new PlaceholderField("e.g. Karthik V", 20);
+    private final JTextField emailField = new PlaceholderField("you@example.com", 20);
+    private final JPasswordField passField = new PlaceholderPasswordField("Enter your password", 20);
     private final JButton tabLogin;
     private final JButton tabRegister;
     private final JLabel title;
@@ -86,7 +86,7 @@ public class LoginDialog extends JDialog {
         JPanel foot = new JPanel(new GridLayout(1, 1));
         foot.setOpaque(false);
         foot.setBorder(Theme.pad(0, 20, 12, 20));
-        foot.add(Theme.muted("Demo customer: demo@skyjet.in / demo123   ·   Admin: admin@skyjet.in / admin123", 11));
+        foot.add(Theme.muted("Demo customer login: demo@skyjet.in / demo123", 11));
         add(foot, BorderLayout.SOUTH);
 
         getRootPane().setDefaultButton(submit);
