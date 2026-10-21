@@ -1,4 +1,18 @@
-# Airoplane Ticket Service — Abstract
+# ✈ AIROPLANE TICKET SERVICE
+
+### A Flight Reservation System with a Native Desktop Application, a Web Interface and an Android Client
+
+| | |
+|---|---|
+| **Project Title** | Airoplane Ticket Service — Flight Reservation & E-Ticket System |
+| **Student Name** | ________________________________ |
+| **Roll Number** | ________________________________ |
+| **Class / Section** | ________________________________ |
+| **Guide / Faculty** | ________________________________ |
+| **Department** | Computer Science & Engineering |
+| **College / Institution** | ________________________________ |
+| **Academic Year** | 2025 – 2026 |
+| **Date of Submission** | ________________________________ |
 
 **Course:** Software Engineering / Full-Stack Development Project
 **Languages used:** Java 17, HTML5, CSS3, JavaScript (ES6), JSON, Shell
@@ -114,7 +128,7 @@ an administrator confirms it" is enforced identically in all three applications.
 | **E-ticket** | PNR, flight details, passenger table, seat numbers, total amount; printable from the desktop app and the browser |
 | **My bookings** | Booking history with status badges, pending notice, approval check, and cancellation that releases the seat |
 | **Admin dashboard** | Statistics (flights, users, bookings, active, pending, revenue), flight add/edit/delete, and the pending-approval queue |
-| **Airports module** | Custom-painted map of India with animated airport markers and route lines, airport list and a "fly from here" shortcut |
+| **Airports module** | Map of the served cities: a custom-painted, animated map of India in the desktop app, and a Leaflet + OpenStreetMap map in the web and mobile apps, with the airport list and a "fly from here" shortcut |
 | **Desktop application** | Native Swing window packaged as a signed macOS `.app` bundle using `jpackage` — no browser required |
 | **Web / PWA and Android** | The same interface as an installable web app and as a Capacitor-based Android APK |
 
@@ -294,8 +308,10 @@ interface.
 
 **Limitations:** password hashing is unsalted SHA-256 and should be replaced by bcrypt or Argon2 in
 production; storage is file-based, so the system runs as a single process and does not scale to many
-concurrent users; the payment gateway is simulated; and the map is drawn offline rather than streamed from
-a live tile server.
+concurrent users; the payment gateway is simulated; the desktop map is drawn by the program itself and
+therefore has no live tile layer, and the web map requires an internet connection to load its tiles; and
+the web interface loads Leaflet from a public content-delivery network, so it would need to be bundled
+locally for a fully offline installation.
 
 **Future scope:** integration with a real payment gateway, seat-hold expiry timers, e-mail and SMS ticket
 delivery with a QR code, PDF e-ticket generation, support for multiple airlines with fare classes and

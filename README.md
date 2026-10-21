@@ -1,7 +1,8 @@
 # ✈ Airoplane Ticket Service (Java)
 
-> 📄 **[ABSTRACT.md](ABSTRACT.md)** — project abstract: abstract, objectives, languages used, methodology,
-> modules, main code, testing, conclusion and future scope.
+> 📄 **[ABSTRACT.md](ABSTRACT.md)** — the project abstract, ready to export as PDF: fill-in title block,
+> abstract and keywords, objectives, languages used, methodology, modules, main code, testing, conclusion
+> and future scope.
 
 Full flight-ticket booking app in **pure Java (no external dependencies)** + HTML/CSS/JS frontend.
 
