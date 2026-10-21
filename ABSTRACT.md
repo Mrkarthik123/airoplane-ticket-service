@@ -76,7 +76,7 @@ workflow, PWA, Capacitor, file-based persistence.
 
 | Language / technology | Purpose |
 |---|---|
-| **Java 17** | Backend API, business logic, data persistence and the complete desktop GUI (Swing) — 24 source files, ~3,100 lines |
+| **Java 17** | Backend API, business logic, data persistence and the complete desktop GUI (Swing) — 31 source files, ~3,700 lines |
 | **HTML5 / CSS3** | Web / PWA layout, forms, seat-map grid, modals and dashboard styling |
 | **JavaScript (ES6)** | Front-end API client, search, booking flow, admin dashboard, service worker |
 | **JSON** | Data-storage format and the body format of every API request and response |
@@ -106,7 +106,7 @@ The architecture follows a **layered design**, in which each layer has a single 
 | Service | `com.airline.service` | All business rules: authentication, flight search, booking, approval, cancellation |
 | Store | `com.airline.store` | File-based JSON persistence, seeding of demo data, date rolling |
 | Utility | `com.airline.util` | Hand-written JSON parser, HTTP helpers, SHA-256 password hashing |
-| UI | `com.airline.ui` | Native Swing desktop application (13 classes) |
+| UI | `com.airline.ui` | Native Swing desktop application with a custom neumorphic (soft-UI) theme (20 classes) |
 
 The **desktop application calls the service layer directly within the same JVM process**, so it does not
 need to serialise data to JSON or send it over a socket. The web and Android applications use the HTTP API

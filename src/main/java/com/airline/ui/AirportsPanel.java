@@ -62,11 +62,8 @@ public class AirportsPanel extends JPanel {
     }
 
     private JPanel airportCard(String code, String[] d) {
-        JPanel p = new JPanel(new BorderLayout(10, 4));
-        p.setBackground(Theme.CARD);
-        p.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 3, 0, 0, Theme.PRIMARY),
-                Theme.pad(10, 12, 10, 12)));
+        SoftPanel p = new SoftPanel(SoftPanel.Style.RAISED, new BorderLayout(10, 4));
+        p.setBorder(Theme.pad(12, 14, 12, 14));
         p.setAlignmentX(Component.LEFT_ALIGNMENT);
         p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 74));
 
@@ -93,7 +90,7 @@ public class AirportsPanel extends JPanel {
 
         MapPanel() {
             setPreferredSize(new Dimension(420, 480));
-            setBackground(new Color(0xE0F2FE));
+            setBackground(new Color(0xE3ECF9));
             timer = new Timer(40, e -> { pulse = (pulse + 0.05) % 1.0; repaint(); });
             timer.start();
         }
@@ -110,7 +107,7 @@ public class AirportsPanel extends JPanel {
             double sx = w / 400.0, sy = h / 440.0;
 
             // sea
-            g2.setPaint(new GradientPaint(0, 0, new Color(0xBAE6FD), 0, h, new Color(0xE0F2FE)));
+            g2.setPaint(new GradientPaint(0, 0, new Color(0xD3E1F7), 0, h, new Color(0xEAF1FC)));
             g2.fillRect(0, 0, w, h);
 
             // land
@@ -122,15 +119,15 @@ public class AirportsPanel extends JPanel {
                 if (i == 0) land.moveTo(x, y); else land.lineTo(x, y);
             }
             land.closePath();
-            g2.setPaint(Color.WHITE);
+            g2.setPaint(new Color(0xF5F8FD));
             g2.fill(land);
-            g2.setPaint(new Color(0x0369A1));
+            g2.setPaint(Theme.SHADOW);
             g2.setStroke(new BasicStroke(2f));
             g2.draw(land);
 
             // routes
             List<String> codes = new ArrayList<>(DATA.keySet());
-            g2.setColor(new Color(0x0E, 0xA5, 0xE9, 140));
+            g2.setColor(new Color(Theme.PRIMARY.getRed(), Theme.PRIMARY.getGreen(), Theme.PRIMARY.getBlue(), 120));
             g2.setStroke(new BasicStroke(1.4f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10f, new float[]{5, 4}, 0));
             for (int i = 0; i < codes.size(); i++) {
                 for (int j = i + 1; j < codes.size(); j++) {
@@ -144,10 +141,10 @@ public class AirportsPanel extends JPanel {
                 Point2D p = project(code, sx, sy);
                 boolean sel = code.equals(selected);
                 double r = sel ? 9 : 6;
-                g2.setPaint(new Color(0xDC, 0x26, 0x26, 60));
+                g2.setPaint(new Color(Theme.PRIMARY.getRed(), Theme.PRIMARY.getGreen(), Theme.PRIMARY.getBlue(), 50));
                 double pr = 10 + pulse * 12;
                 g2.fillOval((int) (p.getX() - pr), (int) (p.getY() - pr), (int) (pr * 2), (int) (pr * 2));
-                g2.setPaint(sel ? new Color(0xB91C1C) : new Color(0xDC2626));
+                g2.setPaint(sel ? Theme.PRIMARY_DARK : Theme.PRIMARY);
                 g2.fillOval((int) (p.getX() - r), (int) (p.getY() - r), (int) (r * 2), (int) (r * 2));
                 g2.setPaint(Color.WHITE);
                 g2.setStroke(new BasicStroke(2f));

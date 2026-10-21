@@ -1,8 +1,8 @@
 # ✈ Airoplane Ticket Service (Java)
 
 > 📦 **[Team-Seven-Source-Code.pdf](Team-Seven-Source-Code.pdf)** — **Team Seven**: the complete source code
-> of the project (58 files, ~5,200 lines) printed with line numbers, syntax highlighting and a table of
-> contents — 89 pages.
+> of the project (65 files, ~5,850 lines) printed with line numbers, syntax highlighting and a table of
+> contents — 98 pages.
 >
 > 📕 **[Airoplane-Ticket-Service-Abstract.pdf](Airoplane-Ticket-Service-Abstract.pdf)** — the finished,
 > print-ready PDF (9 pages, A4, with page numbers) — submit this one.
@@ -19,6 +19,7 @@ Full flight-ticket booking app in **pure Java (no external dependencies)** + HTM
 - **Payments mock** — test card validation, fake `PAY-XXXX` transactions
 - **Admin dashboard** — revenue/booking stats, pending-approval queue, add/edit/delete flights, all-bookings tab with search
 - **Airport map** — real interactive map (Leaflet + OpenStreetMap) with airport locations and route network
+- **Neumorphic UI** — the desktop app and the web/PWA front end share a soft-UI theme: raised cards and buttons, inset input wells, soft dual shadows and no hard borders
 - **Persistence** — `data/*.json` files (flights, users, bookings)
 
 ## ⏳ Booking approval flow
@@ -121,6 +122,13 @@ src/main/java/com/airline/
   service/AuthService.java, FlightService.java, BookingService.java
   util/Json.java, HttpUtil.java, Passwords.java
   ui/                      ← native Swing desktop app
+    Soft.java              ← shadow/highlight painting primitives (neumorphic)
+    SoftPanel.java         ← raised card / inset well surfaces
+    SoftButton.java        ← raised button that presses inward, accent variant
+    SoftTextField.java     ← inset text field
+    SoftPasswordField.java ← inset password field
+    SoftComboUI.java       ← combo box with a soft chevron
+    SoftTabbedPaneUI.java  ← raised selected tab
     MainFrame.java         ← header + Search/Airports/Bookings/Admin tabs
     LoginDialog.java       ← login + register
     SearchPanel.java       ← search form + flight cards
@@ -130,7 +138,7 @@ src/main/java/com/airline/
     BookingsPanel.java     ← my bookings list
     AdminPanel.java        ← stats, flight CRUD, all bookings
     SkyPanel.java          ← animated plane background
-    Theme.java             ← colors, fonts, widget factories
+    Theme.java             ← neumorphic palette, fonts, widget factories
 src/main/resources/static/ ← index.html, styles.css, app.js (web/PWA UI for phones)
 data/                      ← auto-created flights.json, users.json, bookings.json
 ```

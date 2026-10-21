@@ -1,14 +1,12 @@
 package com.airline.ui;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 /** Text field with a visible grey hint that disappears as soon as the user types. */
-public class PlaceholderField extends JTextField {
+public class PlaceholderField extends SoftTextField {
     private final String hint;
 
     public PlaceholderField(String hint, int cols) {
@@ -16,10 +14,7 @@ public class PlaceholderField extends JTextField {
         this.hint = hint;
         setFont(Theme.font(14));
         setForeground(Theme.INK);
-        setBackground(Theme.INPUT_BG);
         setCaretColor(Theme.INK);
-        setOpaque(true);
-        setBorder(new javax.swing.border.CompoundBorder(new LineBorder(Theme.LINE), new EmptyBorder(8, 10, 8, 10)));
         addFocusListener(new FocusAdapter() {
             @Override public void focusGained(FocusEvent e) { repaint(); }
             @Override public void focusLost(FocusEvent e) { repaint(); }

@@ -139,11 +139,8 @@ public class SearchPanel extends JPanel {
     }
 
     private JPanel flightCard(Flight f) {
-        JPanel p = new JPanel(new BorderLayout(14, 6));
-        p.setBackground(Theme.CARD);
-        p.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 3, 0, 0, Theme.PRIMARY),
-                Theme.pad(12, 14, 12, 14)));
+        SoftPanel p = new SoftPanel(SoftPanel.Style.RAISED, new BorderLayout(14, 6));
+        p.setBorder(Theme.pad(14, 16, 14, 16));
         p.setAlignmentX(Component.LEFT_ALIGNMENT);
         p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 92));
 
@@ -163,8 +160,8 @@ public class SearchPanel extends JPanel {
 
         g.gridx = 0; g.gridy = 0;
         right.add(Theme.pill(f.availableSeats() + " seats left",
-                f.availableSeats() > 20 ? new Color(0x166534) : new Color(0x991B1B),
-                f.availableSeats() > 20 ? new Color(0xDCFCE7) : new Color(0xFEE2E2)), g);
+                f.availableSeats() > 20 ? Theme.statusFg("CONFIRMED") : Theme.statusFg("CANCELLED"),
+                f.availableSeats() > 20 ? Theme.statusBg("CONFIRMED") : Theme.statusBg("CANCELLED")), g);
 
         g.gridx = 1; g.gridy = 0;
         JPanel fare = new JPanel(new GridLayout(0, 1));

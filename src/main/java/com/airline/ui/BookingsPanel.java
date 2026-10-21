@@ -79,12 +79,8 @@ public class BookingsPanel extends JPanel {
     private JPanel card(Booking b) {
         Flight f = flights.get(b.flightId);
         boolean pending = "PENDING".equals(b.status);
-        JPanel p = new JPanel(new BorderLayout(14, 6));
-        p.setBackground(Theme.CARD);
-        p.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 3, 0, 0,
-                        pending ? new Color(0xD97706) : b.status.equals("CONFIRMED") ? Theme.OK : Theme.BAD),
-                Theme.pad(12, 14, 12, 14)));
+        SoftPanel p = new SoftPanel(SoftPanel.Style.RAISED, new BorderLayout(14, 6));
+        p.setBorder(Theme.pad(14, 16, 14, 16));
         p.setAlignmentX(Component.LEFT_ALIGNMENT);
         p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 96));
 
@@ -100,7 +96,7 @@ public class BookingsPanel extends JPanel {
         left.add(meta);
         if (pending) {
             JLabel note = Theme.muted("Waiting for admin confirmation — the e-ticket is issued once approved.", 11);
-            note.setForeground(new Color(0x92400E));
+            note.setForeground(Theme.statusFg("PENDING"));
             left.add(note);
         } else if ("CONFIRMED".equals(b.status) && b.confirmedAt != null && !b.confirmedAt.isEmpty()) {
             left.add(Theme.muted("Confirmed on " + b.confirmedAt.replace('T', ' ').substring(0, 16), 11));

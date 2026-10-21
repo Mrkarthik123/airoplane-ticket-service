@@ -46,13 +46,13 @@ public class SkyPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int w = getWidth(), h = getHeight();
 
-        g2.setPaint(new GradientPaint(0, 0, new Color(0x0C4A6E), 0, h, new Color(0xBAE6FD)));
+        g2.setPaint(new GradientPaint(0, 0, new Color(0xBFD4F5), 0, h, new Color(0xEDF2FB)));
         g2.fillRect(0, 0, w, h);
 
         // sun
-        g2.setPaint(new Color(0xFE, 0xF9, 0xC3, 210));
+        g2.setPaint(new Color(0xFF, 0xF6, 0xD8, 200));
         g2.fillOval((int) (w * 0.82), (int) (h * 0.08), (int) (h * 0.16), (int) (h * 0.16));
-        g2.setPaint(new Color(0xFE, 0xF9, 0xC3, 60));
+        g2.setPaint(new Color(0xFF, 0xF6, 0xD8, 60));
         g2.fillOval((int) (w * 0.82) - 30, (int) (h * 0.08) - 30, (int) (h * 0.16) + 60, (int) (h * 0.16) + 60);
 
         // clouds
@@ -74,7 +74,7 @@ public class SkyPanel extends JPanel {
     private void drawPlane(Graphics2D g, int w, int h) {
         double px = planeX * w, py = h * 0.30 + Math.sin(planeX * 6) * h * 0.045;
         double size = Math.max(26.0, h * 0.055);
-        g.setPaint(new Color(0, 0, 0, 45));
+        g.setPaint(new Color(0x6B, 0x7A, 0x95, 45));
         g.fillOval((int) (px - size * 0.35), (int) (py + size * 0.55), (int) (size * 1.5), (int) (size * 0.22));
 
         AffineTransform old = g.getTransform();
@@ -94,7 +94,7 @@ public class SkyPanel extends JPanel {
         wing.lineTo(size * 0.55, -size * 0.5);
         wing.lineTo(size * 0.05, size * 0.02);
         wing.closePath();
-        g.setPaint(new Color(0xE0F2FE));
+        g.setPaint(new Color(0xD9, 0xE4, 0xF7));
         g.fill(wing);
         g.setTransform(old);
     }

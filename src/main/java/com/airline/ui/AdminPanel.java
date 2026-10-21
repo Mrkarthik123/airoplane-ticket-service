@@ -53,8 +53,9 @@ public class AdminPanel extends JPanel {
         };
         bookingTable = new JTable(bookingModel);
         style(bookingTable);
+        Theme.statusColumn(bookingTable, 4);
 
-        JTabbedPane tabs = new JTabbedPane();
+        JTabbedPane tabs = Theme.tabs();
         tabs.setFont(Theme.bold(13));
         tabs.addTab("✈ Flights", flightsTab());
         tabs.addTab("🎫 Bookings", bookingsTab());
@@ -62,12 +63,7 @@ public class AdminPanel extends JPanel {
     }
 
     private void style(JTable t) {
-        t.setFont(Theme.font(13));
-        t.setRowHeight(26);
-        t.setBackground(Color.WHITE);
-        t.setGridColor(Theme.LINE);
-        t.setSelectionBackground(new Color(0xE0F2FE));
-        t.setSelectionForeground(Theme.INK);
+        Theme.styleTable(t);
         t.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
     }
 
@@ -99,7 +95,8 @@ public class AdminPanel extends JPanel {
         toolbar.add(del);
 
         JScrollPane sc = new JScrollPane(flightTable);
-        sc.setBorder(BorderFactory.createLineBorder(Theme.LINE));
+        sc.setBorder(BorderFactory.createEmptyBorder());
+        sc.getViewport().setBackground(Theme.BASE);
         p.add(toolbar, BorderLayout.NORTH);
         p.add(sc, BorderLayout.CENTER);
         return p;
@@ -122,7 +119,8 @@ public class AdminPanel extends JPanel {
         toolbar.add(confirm);
         toolbar.add(cancel);
         JScrollPane sc = new JScrollPane(bookingTable);
-        sc.setBorder(BorderFactory.createLineBorder(Theme.LINE));
+        sc.setBorder(BorderFactory.createEmptyBorder());
+        sc.getViewport().setBackground(Theme.BASE);
         p.add(toolbar, BorderLayout.NORTH);
         p.add(sc, BorderLayout.CENTER);
         return p;

@@ -23,7 +23,7 @@ public class MainFrame extends JFrame {
     private final String token;
     private Runnable onLogout;
 
-    private final JTabbedPane tabs = new JTabbedPane();
+    private final JTabbedPane tabs = Theme.tabs();
     private final JLabel userChip = new JLabel();
     private SearchPanel searchPanel;
     private BookingsPanel bookingsPanel;
@@ -70,23 +70,23 @@ public class MainFrame extends JFrame {
 
     private JComponent header(String serverUrl) {
         JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(Theme.NAVY);
-        p.setBorder(Theme.pad(12, 18, 12, 18));
+        p.setBackground(Theme.BASE);
+        p.setBorder(Theme.pad(14, 20, 14, 20));
 
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         left.setOpaque(false);
         JLabel plane = new JLabel("✈");
         plane.setFont(Theme.bold(24));
-        plane.setForeground(new Color(0x38BDF8));
+        plane.setForeground(Theme.PRIMARY);
         JLabel brand = Theme.title("Airoplane Ticket Service", 19);
-        brand.setForeground(Color.WHITE);
+        brand.setForeground(Theme.INK);
         left.add(plane);
         left.add(brand);
 
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         right.setOpaque(false);
         userChip.setFont(Theme.font(13));
-        userChip.setForeground(Color.WHITE);
+        userChip.setForeground(Theme.INK);
         userChip.setOpaque(true);
         userChip.setBackground(Theme.SLATE);
         userChip.setBorder(Theme.pad(5, 12, 5, 12));
@@ -107,8 +107,8 @@ public class MainFrame extends JFrame {
 
     private JComponent statusBar(String serverUrl) {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        p.setBackground(Theme.CARD);
-        p.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Theme.LINE));
+        p.setBackground(Theme.BASE);
+        p.setBorder(Theme.pad(6, 20, 10, 20));
         p.add(Theme.muted("Server: " + serverUrl + "  ·  Phone access: same Wi-Fi + this address", 11));
         return p;
     }

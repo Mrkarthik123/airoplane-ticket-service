@@ -15,8 +15,8 @@ public class LoginDialog extends JDialog {
     private final JTextField nameField = new PlaceholderField("e.g. Karthik V", 20);
     private final JTextField emailField = new PlaceholderField("you@example.com", 20);
     private final JPasswordField passField = new PlaceholderPasswordField("Enter your password", 20);
-    private final JButton tabLogin;
-    private final JButton tabRegister;
+    private final SoftButton tabLogin;
+    private final SoftButton tabRegister;
     private final JLabel title;
     private final JLabel error;
     private final JButton submit;
@@ -97,10 +97,8 @@ public class LoginDialog extends JDialog {
         registerMode = reg;
         title.setText(reg ? "Create account" : "Login");
         nameField.setVisible(reg);
-        tabLogin.setBackground(reg ? Theme.CARD : Theme.NAVY);
-        tabLogin.setForeground(reg ? Theme.INK : Color.WHITE);
-        tabRegister.setBackground(reg ? Theme.NAVY : Theme.CARD);
-        tabRegister.setForeground(reg ? Color.WHITE : Theme.INK);
+        tabLogin.accent(!reg);
+        tabRegister.accent(reg);
         error.setText("");
         pack();
         setLocationRelativeTo(getOwner());

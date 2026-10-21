@@ -54,13 +54,13 @@ public class BookingDialog extends JDialog {
 
     private JPanel header() {
         JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(Theme.NAVY);
-        p.setBorder(Theme.pad(14, 18, 14, 18));
+        p.setBackground(Theme.BASE);
+        p.setBorder(Theme.pad(14, 20, 14, 20));
         JLabel t = Theme.title(flight.from + "  →  " + flight.to, 20);
-        t.setForeground(Color.WHITE);
+        t.setForeground(Theme.INK);
         JLabel m = Theme.muted(flight.airline + " · " + flight.flightNumber + " · " + flight.date + " · " +
                 flight.departure + "–" + flight.arrival, 12);
-        m.setForeground(new Color(0xBAE6FD));
+        m.setForeground(Theme.MUTED);
         p.add(t, BorderLayout.NORTH);
         p.add(m, BorderLayout.SOUTH);
         return p;
@@ -72,19 +72,21 @@ public class BookingDialog extends JDialog {
         card.add(h, BorderLayout.NORTH);
 
         seatPanel.setLayout(new GridLayout(30, 7, 4, 4));
-        seatPanel.setBackground(new Color(0xF8FAFC));
-        seatPanel.setBorder(Theme.pad(8, 8, 8, 8));
+        seatPanel.setBackground(Theme.BASE);
+        seatPanel.setOpaque(true);
+        seatPanel.setBorder(Theme.pad(10, 10, 10, 10));
         JScrollPane sc = new JScrollPane(seatPanel);
         sc.setBorder(BorderFactory.createEmptyBorder());
-        sc.getViewport().setBackground(new Color(0xF8FAFC));
+        sc.setOpaque(false);
+        sc.getViewport().setBackground(Theme.BASE);
         sc.getVerticalScrollBar().setUnitIncrement(16);
         card.add(sc, BorderLayout.CENTER);
 
         JPanel legend = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
         legend.setOpaque(false);
-        legend.add(seatLegend("Free", Color.WHITE, Theme.LINE));
-        legend.add(seatLegend("Taken", new Color(0xE2E8F0), new Color(0xCBD5E1)));
-        legend.add(seatLegend("Selected", Theme.PRIMARY, Theme.PRIMARY));
+        legend.add(seatLegend("Free", Theme.BASE, Theme.SHADOW));
+        legend.add(seatLegend("Taken", new Color(0xD3DAE6), new Color(0xC3CCDC)));
+        legend.add(seatLegend("Selected", Theme.PRIMARY, Theme.PRIMARY_DARK));
         card.add(legend, BorderLayout.SOUTH);
         return card;
     }
@@ -96,6 +98,8 @@ public class BookingDialog extends JDialog {
         sq.setPreferredSize(new Dimension(20, 20));
         sq.setBackground(bg);
         sq.setBorder(BorderFactory.createLineBorder(border));
+        sq.setContentAreaFilled(true);
+        sq.setOpaque(true);
         sq.setEnabled(false);
         row.add(sq);
         row.add(Theme.muted(text, 11));
@@ -119,7 +123,6 @@ public class BookingDialog extends JDialog {
         g.gridx = 0; g.gridy = 3; g.gridwidth = 1; g.weightx = 0.2;
         card.add(Theme.label("Card number"), g);
         g.gridx = 1; g.gridy = 3; g.gridwidth = 3; g.weightx = 0.8;
-        card.setBackground(Theme.CARD);
         cardField.setText("4111 1111 1111 1111");
         card.add(cardField, g);
 
@@ -159,30 +162,29 @@ public class BookingDialog extends JDialog {
                 }
                 String seat = row + col;
                 boolean taken = flight.bookedSeats.contains(seat);
-                JButton b = new JButton(seat);
+                SoftButton b = new SoftButton(seat);
                 b.setFont(Theme.font(10));
                 b.setMargin(new Insets(1, 1, 1, 1));
+                b.setBorder(new javax.swing.border.EmptyBorder(4, 4, 4, 4));
+                b.radius(8);
                 b.setFocusPainted(false);
                 b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                b.setBorder(BorderFactory.createLineBorder(taken ? new Color(0xCBD5E1) : Theme.LINE));
-                b.setBackground(taken ? new Color(0xE2E8F0) : Color.WHITE);
-                b.setForeground(taken ? new Color(0x94A3B8) : Theme.INK);
+                b.setForeground(taken ? new Color(0x8D99AC) : Theme.INK);
+                if (taken) b.face(new Color(0xD3DAE6));
                 b.setEnabled(!taken);
                 b.addActionListener(e -> {
                     if (selectedSeats.contains(seat)) {
                         selectedSeats.remove(seat);
-                        b.setBackground(Color.WHITE);
+                        b.accent(false);
                         b.setForeground(Theme.INK);
-                        b.setBorder(BorderFactory.createLineBorder(Theme.LINE));
                     } else {
                         if (selectedSeats.size() >= travellers) {
                             JOptionPane.showMessageDialog(this, "You can pick " + travellers + " seat(s) only.");
                             return;
                         }
                         selectedSeats.add(seat);
-                        b.setBackground(Theme.PRIMARY);
+                        b.accent(true);
                         b.setForeground(Color.WHITE);
-                        b.setBorder(BorderFactory.createLineBorder(Theme.PRIMARY));
                     }
                     updateTotal();
                 });

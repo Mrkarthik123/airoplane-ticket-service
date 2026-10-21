@@ -32,6 +32,13 @@ SECTIONS = [
         "src/main/java/com/airline/ui/MainFrame.java",
         "src/main/java/com/airline/ui/LoginDialog.java",
         "src/main/java/com/airline/ui/Theme.java",
+        "src/main/java/com/airline/ui/Soft.java",
+        "src/main/java/com/airline/ui/SoftPanel.java",
+        "src/main/java/com/airline/ui/SoftButton.java",
+        "src/main/java/com/airline/ui/SoftTextField.java",
+        "src/main/java/com/airline/ui/SoftPasswordField.java",
+        "src/main/java/com/airline/ui/SoftComboUI.java",
+        "src/main/java/com/airline/ui/SoftTabbedPaneUI.java",
         "src/main/java/com/airline/ui/PlaceholderField.java",
         "src/main/java/com/airline/ui/PlaceholderPasswordField.java",
         "src/main/java/com/airline/ui/SkyPanel.java",
@@ -241,22 +248,22 @@ body {
   font-size: 10pt;
 }
 
-.cover { text-align: center; padding-top: 90pt; page-break-after: always; }
+.cover { text-align: center; padding-top: 54pt; page-break-after: always; }
 .cover .team {
   font-size: 30pt; font-weight: 700; letter-spacing: 3px; color: #0b3d91; margin: 0 0 6pt;
 }
 .cover .rule { width: 150pt; height: 2.5pt; background: #0b3d91; margin: 14pt auto; }
 .cover .proj { font-size: 16pt; font-weight: 600; color: #1f2937; margin: 0 0 4pt; }
-.cover .sub { font-size: 11pt; color: #55627a; margin: 0 0 34pt; }
+.cover .sub { font-size: 11pt; color: #55627a; margin: 0 0 20pt; }
 .cover table { width: 78%; margin: 0 auto 18pt; border-collapse: collapse; font-size: 9.5pt; }
 .cover td { border-bottom: 0.5pt solid #c3ccd9; padding: 5pt 6pt; text-align: left; }
 .cover td.k { color: #55627a; width: 38%; }
 .cover .stats { margin: 0 auto; font-size: 9.5pt; color: #334155; }
-.cover .stats b { color: #0b3d91; font-size: 13pt; display: block; }
+.cover .stats b { color: #0b3d91; font-size: 13pt; }
 
 .toc h1 { font-size: 17pt; color: #0b3d91; border-bottom: 1.5pt solid #0b3d91; padding-bottom: 4pt; margin: 0 0 10pt; }
 .toc .part { font-weight: 700; color: #0b3d91; font-size: 10.5pt; margin: 11pt 0 4pt; }
-.toc ol { margin: 0 0 0 16pt; padding: 0; }
+.toc ol { margin: 0 0 0 26pt; padding: 0; }
 .toc li { font-family: "SF Mono", Menlo, monospace; font-size: 8.6pt; margin-bottom: 1.5pt; color: #1f2937; }
 .toc li span { color: #64748b; }
 .toc .pagebreak { page-break-after: always; }
@@ -346,8 +353,12 @@ def main() -> None:
                 f'<tbody>{"".join(rows)}</tbody></table>'
             )
 
+    by_name = {}
+    for ext, n in per_lang.items():
+        name = LANG.get("." + ext, ext)
+        by_name[name] = by_name.get(name, 0) + n
     lang_stats = " &nbsp;·&nbsp; ".join(
-        f"{LANG.get('.' + k, k)} <b>{v:,}</b> lines" for k, v in sorted(per_lang.items(), key=lambda x: -x[1])
+        f"{name} <b>{n:,}</b> lines" for name, n in sorted(by_name.items(), key=lambda x: -x[1])
     )
 
     toc = ['<div class="toc"><h1>Table of contents</h1>']

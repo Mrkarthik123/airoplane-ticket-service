@@ -16,10 +16,8 @@ public class TicketDialog extends JDialog {
         setSize(620, 540);
         setLocationRelativeTo(owner);
 
-        JPanel card = new JPanel(new BorderLayout(0, 10));
-        card.setBackground(new Color(0xF0F9FF));
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Theme.PRIMARY, 2, true), Theme.pad(16, 16, 16, 16)));
+        SoftPanel card = new SoftPanel(SoftPanel.Style.RAISED, new BorderLayout(0, 10));
+        card.setBorder(Theme.pad(18, 20, 18, 20));
 
         JPanel head = new JPanel(new BorderLayout());
         head.setOpaque(false);
@@ -52,13 +50,10 @@ public class TicketDialog extends JDialog {
                     p.getOrDefault("gender", ""), seat});
         }
         JTable table = new JTable(model);
-        table.setFont(Theme.font(13));
-        table.setRowHeight(24);
-        table.setBackground(Color.WHITE);
-        table.setGridColor(Theme.LINE);
-        table.setShowGrid(true);
+        Theme.styleTable(table);
         JScrollPane sc = new JScrollPane(table);
-        sc.setBorder(BorderFactory.createLineBorder(Theme.LINE));
+        sc.setBorder(BorderFactory.createEmptyBorder());
+        sc.getViewport().setBackground(Theme.BASE);
 
         JPanel foot = new JPanel(new BorderLayout());
         foot.setOpaque(false);
