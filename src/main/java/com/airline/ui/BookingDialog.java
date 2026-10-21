@@ -68,7 +68,7 @@ public class BookingDialog extends JDialog {
 
     private JPanel seatsCard() {
         JPanel card = Theme.card(new BorderLayout(0, 8));
-        JLabel h = Theme.title("1. Select seats (" + travellers + " needed)", 15);
+        JLabel h = Theme.title("1. Select seats (" + travellers + (travellers == 1 ? " person" : " people") + ")", 15);
         card.add(h, BorderLayout.NORTH);
 
         seatPanel.setLayout(new GridLayout(30, 7, 4, 4));
@@ -110,7 +110,7 @@ public class BookingDialog extends JDialog {
         g.anchor = GridBagConstraints.WEST;
 
         g.gridx = 0; g.gridy = 0; g.gridwidth = 4;
-        card.add(Theme.title("2. Passengers", 15), g);
+        card.add(Theme.title("2. Passenger details (" + travellers + (travellers == 1 ? " person" : " people") + ")", 15), g);
         g.gridy = 1; g.gridwidth = 4; g.weightx = 1;
         card.add(buildPassengerRows(), g);
 
@@ -127,7 +127,7 @@ public class BookingDialog extends JDialog {
         totalLabel.setForeground(Theme.PRIMARY_DARK);
         card.add(totalLabel, g);
         g.gridy = 5;
-        seatInfo.setText("Pick " + travellers + " seat(s) and fill passenger names.");
+        seatInfo.setText("Pick " + travellers + " seat(s) for " + travellers + (travellers == 1 ? " person" : " people") + " and fill each person's name and age.");
         card.add(seatInfo, g);
         g.gridy = 6;
         card.add(Theme.muted("Test card only — no real money is charged.", 11), g);
@@ -194,37 +194,61 @@ public class BookingDialog extends JDialog {
     }
 
     private JPanel buildPassengerRows() {
-        JPanel rows = new JPanel();
-        rows.setLayout(new BoxLayout(rows, BoxLayout.Y_AXIS));
+        JPanel rows = new JPanel(new GridBagLayout());
         rows.setOpaque(false);
+        GridBagConstraints g = new GridBagConstraints();
+        g.insets = new Insets(3, 4, 3, 4);
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.anchor = GridBagConstraints.WEST;
+
+        // column headers so every box is labelled
+        g.gridx = 0; g.gridy = 0; g.weightx = 0;
+        rows.add(Theme.muted("#", 11), g);
+        g.gridx = 1; g.weightx = 1;
+        rows.add(Theme.label("Full name"), g);
+        g.gridx = 2; g.weightx = 0;
+        rows.add(Theme.label("Age"), g);
+        g.gridx = 3; g.weightx = 0;
+        rows.add(Theme.label("Gender"), g);
+
         for (int i = 0; i < travellers; i++) {
-            JPanel r = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
-            r.setOpaque(false);
-            r.setAlignmentX(Component.LEFT_ALIGNMENT);
-            JTextField name = Theme.field(14);
-            JTextField age = Theme.field(3);
+            int y = i + 1;
+            g.gridx = 0; g.gridy = y; g.weightx = 0;
+            rows.add(Theme.label("P" + (i + 1)), g);
+
+            JTextField name = new PlaceholderField("Passenger " + (i + 1) + " name", 16);
+            g.gridx = 1; g.weightx = 1;
+            rows.add(name, g);
+
+            JTextField age = new PlaceholderField("Age", 4);
+            age.setHorizontalAlignment(SwingConstants.CENTER);
+            g.gridx = 2; g.weightx = 0;
+            rows.add(age, g);
+
             JComboBox<String> gender = Theme.combo(new String[]{"Male", "Female", "Other"});
+            g.gridx = 3; g.weightx = 0;
+            rows.add(gender, g);
+
             nameFields.put(i, name);
             ageFields.put(i, age);
             genderFields.put(i, gender);
-            r.add(Theme.label("P" + (i + 1)));
-            r.add(name);
-            r.add(age);
-            r.add(gender);
-            rows.add(r);
         }
+
+        g.gridx = 0; g.gridy = travellers + 1; g.gridwidth = 4; g.weightx = 1;
+        rows.add(Theme.muted("Number of people in this booking: " + travellers +
+                (travellers == 1 ? " person" : " people"), 11), g);
         return rows;
     }
 
     private void updateTotal() {
         double total = flight.price * travellers;
-        totalLabel.setText("Total: ₹" + String.format("%,.0f", total) + "  (" + travellers + " × ₹" +
-                String.format("%,.0f", flight.price) + ")");
+        totalLabel.setText("Total: ₹" + String.format("%,.0f", total) + "  (" + travellers +
+                (travellers == 1 ? " person × " : " people × ") + "₹" + String.format("%,.0f", flight.price) + ")");
         if (selectedSeats.size() == travellers) {
             seatInfo.setText("Seats selected: " + String.join(", ", selectedSeats));
             seatInfo.setForeground(Theme.OK);
         } else {
-            seatInfo.setText("Pick " + (travellers - selectedSeats.size()) + " more seat(s).");
+            seatInfo.setText("Pick " + (travellers - selectedSeats.size()) + " more seat(s) for " + travellers + (travellers == 1 ? " person" : " people") + ".");
             seatInfo.setForeground(Theme.MUTED);
         }
     }
@@ -241,9 +265,27 @@ public class BookingDialog extends JDialog {
                 JOptionPane.showMessageDialog(this, "Enter passenger name for P" + (i + 1) + ".");
                 return;
             }
+            String ageText = ageFields.get(i).getText().trim();
+            if (ageText.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Enter age for P" + (i + 1) + ".");
+                ageFields.get(i).requestFocusInWindow();
+                return;
+            }
+            int age;
+            try { age = Integer.parseInt(ageText); }
+            catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Age for P" + (i + 1) + " must be a number.");
+                ageFields.get(i).requestFocusInWindow();
+                return;
+            }
+            if (age < 1 || age > 120) {
+                JOptionPane.showMessageDialog(this, "Age for P" + (i + 1) + " must be between 1 and 120.");
+                ageFields.get(i).requestFocusInWindow();
+                return;
+            }
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("name", name);
-            m.put("age", ageFields.get(i).getText().trim());
+            m.put("age", ageText);
             m.put("gender", (String) genderFields.get(i).getSelectedItem());
             pax.add(m);
         }

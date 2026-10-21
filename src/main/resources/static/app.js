@@ -189,7 +189,7 @@ function renderPax(n) {
 }
 function updatePrice() {
   const n = parseInt($('#paxSel').value || '1', 10);
-  $('#priceLine').textContent = `Total: ${inr((state.bookingFlight?.price || 0) * n)} · Seats: ${state.seats.join(', ') || '—'}`;
+  $('#priceLine').textContent = `Total: ${inr((state.bookingFlight?.price || 0) * n)} · ${n} ${n === 1 ? 'person' : 'people'} · Seats: ${state.seats.join(', ') || '—'}`;
 }
 $('#payBtn').onclick = async () => {
   try {
