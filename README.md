@@ -1,5 +1,8 @@
 # ✈ Airoplane Ticket Service (Java)
 
+> 📕 **[Airoplane-Ticket-Service-Abstract.pdf](Airoplane-Ticket-Service-Abstract.pdf)** — the finished,
+> print-ready PDF (9 pages, A4, with page numbers) — submit this one.
+>
 > 📄 **[ABSTRACT.md](ABSTRACT.md)** — the project abstract, ready to export as PDF: fill-in title block,
 > abstract and keywords, objectives, languages used, methodology, modules, main code, testing, conclusion
 > and future scope.
