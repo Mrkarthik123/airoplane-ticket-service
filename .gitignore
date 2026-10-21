@@ -13,3 +13,6 @@ mobile/android/capacitor-cordova-android-plugins/build/
 mobile/www/
 *.log
 mobile/tools/IconGen.class
+
+__pycache__/
+*.pyc
