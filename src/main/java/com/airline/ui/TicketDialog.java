@@ -30,6 +30,19 @@ public class TicketDialog extends JDialog {
                 " · " + flight.date + " · " + flight.departure + "–" + flight.arrival, 12);
         head.add(sub, BorderLayout.SOUTH);
 
+        boolean confirmed = "CONFIRMED".equals(booking.status);
+        JPanel banner = new JPanel(new BorderLayout(8, 0));
+        banner.setOpaque(true);
+        banner.setBackground(Theme.statusBg(booking.status));
+        banner.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, Theme.statusFg(booking.status)), Theme.pad(8, 10, 8, 10)));
+        String bannerText = confirmed
+                ? "Confirmed by the airline — this e-ticket is valid for travel."
+                : "PENDING — this booking is waiting for admin confirmation. The e-ticket is issued only after approval.";
+        JLabel bannerTextLabel = Theme.label(bannerText);
+        bannerTextLabel.setForeground(Theme.statusFg(booking.status));
+        banner.add(bannerTextLabel, BorderLayout.CENTER);
+
         String[] cols = {"Passenger", "Age", "Gender", "Seat"};
         DefaultTableModel model = new DefaultTableModel(cols, 0);
         for (int i = 0; i < booking.passengers.size(); i++) {
@@ -51,20 +64,24 @@ public class TicketDialog extends JDialog {
         foot.setOpaque(false);
         JLabel total = Theme.title("Total paid: ₹" + String.format("%,.0f", booking.totalPrice), 15);
         total.setForeground(Theme.PRIMARY_DARK);
-        JLabel st = Theme.pill(booking.status, booking.status.equals("CONFIRMED")
-                ? new Color(0x166534) : new Color(0x991B1B),
-                booking.status.equals("CONFIRMED") ? new Color(0xDCFCE7) : new Color(0xFEE2E2));
+        JLabel st = Theme.statusPill(booking.status);
         foot.add(total, BorderLayout.WEST);
         foot.add(st, BorderLayout.EAST);
 
-        card.add(head, BorderLayout.NORTH);
+        JPanel top = new JPanel(new BorderLayout(0, 8));
+        top.setOpaque(false);
+        top.add(head, BorderLayout.NORTH);
+        top.add(banner, BorderLayout.SOUTH);
+        card.add(top, BorderLayout.NORTH);
         card.add(sc, BorderLayout.CENTER);
         card.add(foot, BorderLayout.SOUTH);
         add(card, BorderLayout.CENTER);
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         buttons.setOpaque(false);
-        JButton print = Theme.button("🖨 Print");
+        JButton print = Theme.button(confirmed ? "🖨 Print ticket" : "🖨 Print (after approval)");
+        print.setEnabled(confirmed);
+        if (!confirmed) print.setToolTipText("Printing unlocks once the admin confirms this booking.");
         print.addActionListener(e -> printTicket(booking, flight));
         JButton close = Theme.primary("Close");
         close.addActionListener(e -> dispose());

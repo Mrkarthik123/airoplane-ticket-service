@@ -123,6 +123,33 @@ public final class Theme {
         return new EmptyBorder(top, left, bottom, right);
     }
 
+    /** Foreground colour for a booking status badge. */
+    public static Color statusFg(String status) {
+        if (status == null) return MUTED;
+        switch (status) {
+            case "CONFIRMED": return new Color(0x166534);
+            case "PENDING": return new Color(0x92400E);
+            default: return new Color(0x991B1B);
+        }
+    }
+
+    /** Background colour for a booking status badge. */
+    public static Color statusBg(String status) {
+        if (status == null) return new Color(0xF1F5F9);
+        switch (status) {
+            case "CONFIRMED": return new Color(0xDCFCE7);
+            case "PENDING": return new Color(0xFEF3C7);
+            default: return new Color(0xFEE2E2);
+        }
+    }
+
+    /** Status badge label. */
+    public static JLabel statusPill(String status) {
+        String text = status == null ? "PENDING" : status;
+        if (text.equals("PENDING")) text = "PENDING · awaiting admin";
+        return pill(text, statusFg(status), statusBg(status));
+    }
+
     public static Border round() {
         return new LineBorder(LINE);
     }

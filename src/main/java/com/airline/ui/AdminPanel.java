@@ -22,7 +22,7 @@ public class AdminPanel extends JPanel {
     private final BookingService bookings;
     private final OnChanged onChanged;
 
-    private final JPanel statsRow = new JPanel(new GridLayout(1, 5, 10, 0));
+    private final JPanel statsRow = new JPanel(new GridLayout(1, 6, 10, 0));
     private final JTable flightTable;
     private final DefaultTableModel flightModel;
     private final JTable bookingTable;
@@ -113,9 +113,13 @@ public class AdminPanel extends JPanel {
         toolbar.setOpaque(false);
         JButton refresh = Theme.button("↻ Refresh");
         refresh.addActionListener(e -> refreshBookings());
+        JButton confirm = Theme.primary("✓ Confirm booking");
+        confirm.setToolTipText("Approve the selected pending booking and issue its e-ticket");
+        confirm.addActionListener(e -> confirmSelectedBooking());
         JButton cancel = Theme.danger("Cancel selected booking");
         cancel.addActionListener(e -> cancelSelectedBooking());
         toolbar.add(refresh);
+        toolbar.add(confirm);
         toolbar.add(cancel);
         JScrollPane sc = new JScrollPane(bookingTable);
         sc.setBorder(BorderFactory.createLineBorder(Theme.LINE));
@@ -126,13 +130,18 @@ public class AdminPanel extends JPanel {
 
     public void refresh() {
         int active = 0;
+        int pending = 0;
         double revenue = 0;
-        for (Booking b : db.bookings.values()) if (b.status.equals("CONFIRMED")) { revenue += b.totalPrice; active++; }
+        for (Booking b : db.bookings.values()) {
+            if (b.status.equals("CONFIRMED")) { revenue += b.totalPrice; active++; }
+            else if (b.status.equals("PENDING")) pending++;
+        }
         statsRow.removeAll();
         statsRow.add(stat("Flights", String.valueOf(db.flights.size())));
         statsRow.add(stat("Users", String.valueOf(db.users.size())));
         statsRow.add(stat("Bookings", String.valueOf(db.bookings.size())));
         statsRow.add(stat("Active", String.valueOf(active)));
+        statsRow.add(stat("Pending", String.valueOf(pending)));
         statsRow.add(stat("Revenue", "₹" + String.format("%,.0f", revenue)));
         statsRow.revalidate();
         statsRow.repaint();
@@ -168,6 +177,28 @@ public class AdminPanel extends JPanel {
             bookingModel.addRow(new Object[]{b.pnr, b.flightId, String.join(", ", b.seats),
                     "₹" + String.format("%,.0f", b.totalPrice), b.status, b.createdAt});
         }
+    }
+
+    /** Approves the selected pending booking — the e-ticket is issued only after this. */
+    private void confirmSelectedBooking() {
+        int r = bookingTable.getSelectedRow();
+        if (r < 0) { JOptionPane.showMessageDialog(this, "Select a booking first."); return; }
+        String pnr = (String) bookingTable.getValueAt(r, 0);
+        Booking b = db.bookings.get(pnr);
+        if (b == null) { JOptionPane.showMessageDialog(this, "Booking not found."); return; }
+        if (!"PENDING".equals(b.status)) {
+            JOptionPane.showMessageDialog(this, "Booking " + pnr + " is " + b.status + " — only pending bookings can be confirmed.");
+            return;
+        }
+        int ok = JOptionPane.showConfirmDialog(this,
+                "Confirm booking " + pnr + " for ₹" + String.format("%,.0f", b.totalPrice) + "?\nThe e-ticket is issued now.",
+                "Confirm booking", JOptionPane.YES_NO_OPTION);
+        if (ok != JOptionPane.YES_OPTION) return;
+        BookingService.Result res = bookings.confirm(pnr, true);
+        if (res.error != null) JOptionPane.showMessageDialog(this, res.error);
+        else JOptionPane.showMessageDialog(this, "Booking " + pnr + " confirmed. E-ticket issued.");
+        refresh();
+        onChanged.changed();
     }
 
     private void editSelected() {

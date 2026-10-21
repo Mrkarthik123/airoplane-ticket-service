@@ -38,7 +38,14 @@ public class BookingsPanel extends JPanel {
         JPanel head = new JPanel(new BorderLayout());
         head.setOpaque(false);
         head.add(Theme.title(admin ? "All bookings" : "My bookings", 17), BorderLayout.WEST);
-        head.add(count, BorderLayout.EAST);
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        right.setOpaque(false);
+        right.add(count);
+        JButton refresh = Theme.button("↻ Refresh");
+        refresh.setToolTipText("Check whether an admin has confirmed a pending booking");
+        refresh.addActionListener(e -> { refresh(); onChanged.changed(); });
+        right.add(refresh);
+        head.add(right, BorderLayout.EAST);
 
         JScrollPane sc = new JScrollPane(list);
         sc.setBorder(BorderFactory.createEmptyBorder());
@@ -71,11 +78,12 @@ public class BookingsPanel extends JPanel {
 
     private JPanel card(Booking b) {
         Flight f = flights.get(b.flightId);
+        boolean pending = "PENDING".equals(b.status);
         JPanel p = new JPanel(new BorderLayout(14, 6));
         p.setBackground(Theme.CARD);
         p.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 3, 0, 0,
-                        b.status.equals("CONFIRMED") ? Theme.OK : Theme.BAD),
+                        pending ? new Color(0xD97706) : b.status.equals("CONFIRMED") ? Theme.OK : Theme.BAD),
                 Theme.pad(12, 14, 12, 14)));
         p.setAlignmentX(Component.LEFT_ALIGNMENT);
         p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 96));
@@ -90,18 +98,24 @@ public class BookingsPanel extends JPanel {
                 " · ₹" + String.format("%,.0f", b.totalPrice), 12);
         left.add(route);
         left.add(meta);
+        if (pending) {
+            JLabel note = Theme.muted("Waiting for admin confirmation — the e-ticket is issued once approved.", 11);
+            note.setForeground(new Color(0x92400E));
+            left.add(note);
+        } else if ("CONFIRMED".equals(b.status) && b.confirmedAt != null && !b.confirmedAt.isEmpty()) {
+            left.add(Theme.muted("Confirmed on " + b.confirmedAt.replace('T', ' ').substring(0, 16), 11));
+        }
 
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         right.setOpaque(false);
-        right.add(Theme.pill(b.status, b.status.equals("CONFIRMED") ? new Color(0x166534) : new Color(0x991B1B),
-                b.status.equals("CONFIRMED") ? new Color(0xDCFCE7) : new Color(0xFEE2E2)));
-        JButton view = Theme.button("View ticket");
+        right.add(Theme.statusPill(b.status));
+        JButton view = Theme.button(pending ? "View status" : "View ticket");
         view.addActionListener(e -> {
             if (f != null) new TicketDialog(SwingUtilities.getWindowAncestor(this), b, f).setVisible(true);
             else JOptionPane.showMessageDialog(this, "Flight details unavailable.");
         });
         right.add(view);
-        if (b.status.equals("CONFIRMED")) {
+        if (!b.status.equals("CANCELLED")) {
             JButton cancel = Theme.danger("Cancel");
             cancel.addActionListener(e -> {
                 int ok = JOptionPane.showConfirmDialog(this, "Cancel booking " + b.pnr + "? Seats are released.",

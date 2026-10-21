@@ -210,20 +210,25 @@ $('#payBtn').onclick = async () => {
     const j = await api('/api/bookings', { method: 'POST', headers: headers(), body: JSON.stringify({ flightId: state.bookingFlight.id, passengers: pax, seats: state.seats, paymentId: pay.payment.paymentId, paidAmount: amount }) });
     $('#bookModal').style.display = 'none';
     showTicket(j.booking);
-    toast('Booking confirmed! PNR ' + j.booking.pnr);
+    toast('Booking submitted — PNR ' + j.booking.pnr + ' is PENDING until an admin confirms it.');
   } catch (err) { toast(err.message); }
 };
 
 // ---------- ticket + my bookings ----------
 function showTicket(b) {
   const f = b.flight || {};
+  const confirmed = b.status === 'CONFIRMED';
+  const note = confirmed ? '' : `<div class="pending-note">⏳ <b>PENDING</b> — this booking is waiting for admin confirmation. The e-ticket is issued only after approval.</div>`;
   $('#ticketBody').innerHTML = `<div class="ticket">
-    <div class="muted small">SKYJET E-TICKET · ${b.status}</div><div class="pnr">${b.pnr}</div>
+    <div class="muted small">AIROPLANE E-TICKET · ${b.status}</div><div class="pnr">${b.pnr}</div>
+    ${note}
     <h2>${f.from || ''} → ${f.to || ''}</h2>
     <p>${f.airline || ''} ${f.flightNumber || ''} · ${f.date || ''} · ${f.departure || ''}–${f.arrival || ''}</p>
     <p><b>Passengers:</b> ${(b.passengers || []).map(p => `${p.name} (${p.age})`).join(', ')}</p>
     <p><b>Seats:</b> ${(b.seats || []).join(', ')} · <b>Total paid:</b> ${inr(b.totalPrice)}</p>
     <p class="muted small">Payment ${b.paymentId || ''} · Booked ${String(b.createdAt || '').slice(0, 16).replace('T', ' ')}</p></div>`;
+  const pb = $('#ticketPrintBtn');
+  if (pb) { pb.disabled = !confirmed; pb.textContent = confirmed ? '🖨 Print' : '🖨 Print (after approval)'; }
   $('#ticketModal').style.display = 'flex';
 }
 async function loadMyBookings() {
@@ -233,10 +238,11 @@ async function loadMyBookings() {
     const j = await api('/api/bookings', { headers: headers(false) });
     if (!j.bookings.length) { box.innerHTML = `<div class="card">No bookings yet. Search and book your first flight!</div>`; return; }
     box.innerHTML = j.bookings.map(b => { const f = b.flight || {}; return `
-      <div class="card flight"><div><div class="route">${f.from || '?'} → ${f.to || '?'} <span class="pill ${b.status === 'CONFIRMED' ? 'green' : 'red'}">${b.status}</span></div>
-      <div class="meta">PNR <b>${b.pnr}</b> · ${f.airline || ''} ${f.flightNumber || ''} · ${f.date || ''} · Seats ${(b.seats || []).join(', ')} · ${inr(b.totalPrice)}</div></div>
-      <div class="fare"><button class="btn btn-sm" onclick='showTicket(${JSON.stringify(b).replace(/'/g, "&#39;")})'>View ticket</button>
-      ${b.status === 'CONFIRMED' ? `<button class="btn btn-sm" onclick="cancelBooking('${b.pnr}')">Cancel</button>` : ''}</div></div>`; }).join('');
+      <div class="card flight"><div><div class="route">${f.from || '?'} → ${f.to || '?'} <span class="pill ${b.status === 'CONFIRMED' ? 'green' : b.status === 'PENDING' ? 'amber' : 'red'}">${b.status}</span></div>
+      <div class="meta">PNR <b>${b.pnr}</b> · ${f.airline || ''} ${f.flightNumber || ''} · ${f.date || ''} · Seats ${(b.seats || []).join(', ')} · ${inr(b.totalPrice)}</div>
+      ${b.status === 'PENDING' ? `<div class="pending-note small">⏳ Waiting for admin confirmation — the e-ticket is issued once approved.</div>` : ''}</div>
+      <div class="fare"><button class="btn btn-sm" onclick='showTicket(${JSON.stringify(b).replace(/'/g, "&#39;")})'>${b.status === 'PENDING' ? 'View status' : 'View ticket'}</button>
+      ${b.status !== 'CANCELLED' ? `<button class="btn btn-sm" onclick="cancelBooking('${b.pnr}')">Cancel</button>` : ''}</div></div>`; }).join('');
     window._cache = j.bookings;
     window.showTicket = (b) => { if (typeof b === 'string') b = window._cache.find(x => x.pnr === b) || b; if (typeof b !== 'object') return; showTicket(b); };
   } catch (err) { box.innerHTML = `<div class="card">${err.message}</div>`; }
@@ -271,7 +277,7 @@ async function loadAdmin() {
   if ($('#adminBody')) $('#adminBody').style.display = 'block';
   try {
     const s = await api('/api/admin/stats', { headers: headers(false) });
-    $('#statsRow').innerHTML = [['Flights', s.stats.flights], ['Users', s.stats.users], ['Bookings', s.stats.bookings], ['Active', s.stats.activeBookings], ['Revenue', inr(s.stats.revenue)]].map(([k, v]) => `<div class="stat"><span class="muted">${k}</span><b>${v}</b></div>`).join('');
+    $('#statsRow').innerHTML = [['Flights', s.stats.flights], ['Users', s.stats.users], ['Bookings', s.stats.bookings], ['Active', s.stats.activeBookings], ['Pending', s.stats.pendingBookings || 0], ['Revenue', inr(s.stats.revenue)]].map(([k, v]) => `<div class="stat"><span class="muted">${k}</span><b>${v}</b></div>`).join('');
     const f = await api('/api/flights', { headers: headers(false) });
     state.flights = f.flights;
     renderAdminFlights();
@@ -295,9 +301,14 @@ function renderAdminBookings() {
   const q = (adminBookingFilter || '').toLowerCase();
   const list = adminAllBookings.filter(b => !q || [b.pnr, b.flightId, b.status, b.userId].join(' ').toLowerCase().includes(q));
   if (!$('#adminBookings')) return;
-  $('#adminBookings').innerHTML = list.length ? `<div class="card"><table><tr><th>PNR</th><th>Flight</th><th>Seats</th><th>Total</th><th>Status</th><th></th></tr>${list.map(b => `<tr><td><b>${b.pnr}</b></td><td>${b.flightId}</td><td>${(b.seats || []).join(', ')}</td><td>${inr(b.totalPrice)}</td><td><span class="pill ${b.status === 'CONFIRMED' ? 'green' : 'red'}">${b.status}</span></td><td>${b.status === 'CONFIRMED' ? `<button class="btn btn-sm" onclick="adminCancelBooking('${b.pnr}')">Cancel</button>` : ''}</td></tr>`).join('')}</table></div>`
+  $('#adminBookings').innerHTML = list.length ? `<div class="card"><table><tr><th>PNR</th><th>Flight</th><th>Seats</th><th>Total</th><th>Status</th><th></th></tr>${list.map(b => `<tr><td><b>${b.pnr}</b></td><td>${b.flightId}</td><td>${(b.seats || []).join(', ')}</td><td>${inr(b.totalPrice)}</td><td><span class="pill ${b.status === 'CONFIRMED' ? 'green' : b.status === 'PENDING' ? 'amber' : 'red'}">${b.status}</span></td><td>${b.status === 'PENDING' ? `<button class="btn btn-sm btn-primary" onclick="adminConfirmBooking('${b.pnr}')">✓ Confirm</button> ` : ''}${b.status !== 'CANCELLED' ? `<button class="btn btn-sm" onclick="adminCancelBooking('${b.pnr}')">Cancel</button>` : ''}</td></tr>`).join('')}</table></div>`
     : '<div class="card">No bookings found.</div>';
 }
+window.adminConfirmBooking = async (pnr) => {
+  if (!confirm('Confirm booking ' + pnr + ' and issue the e-ticket?')) return;
+  try { await api('/api/bookings/' + pnr + '/confirm', { method: 'POST', headers: headers() }); toast('Booking ' + pnr + ' confirmed — e-ticket issued.'); loadAdminBookings(); loadAdmin(); }
+  catch (err) { toast(err.message); }
+};
 window.adminCancelBooking = async (pnr) => {
   if (!confirm('Cancel booking ' + pnr + ' (admin)?')) return;
   try { await api('/api/bookings/' + pnr + '/cancel', { method: 'POST', headers: headers() }); toast('Booking ' + pnr + ' cancelled.'); loadAdminBookings(); loadAdmin(); } catch (err) { toast(err.message); }

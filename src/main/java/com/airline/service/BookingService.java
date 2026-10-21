@@ -41,7 +41,7 @@ public class BookingService {
             b.pnr = genPnr();
             b.userId = userId; b.flightId = flightId;
             b.passengers = passengers; b.seats = new ArrayList<>(seats);
-            b.totalPrice = total; b.status = "CONFIRMED";
+            b.totalPrice = total; b.status = "PENDING"; // admin must confirm before the ticket is issued
             b.paymentId = paymentId == null ? "" : paymentId;
             b.createdAt = LocalDateTime.now().toString();
             f.bookedSeats.addAll(seats);
@@ -50,6 +50,29 @@ public class BookingService {
             r.booking = b;
         }
         return r;
+    }
+
+    /** Admin approves a pending booking and issues the ticket. */
+    public Result confirm(String pnr, boolean isAdmin) {
+        Result r = new Result();
+        synchronized (db) {
+            Booking b = db.bookings.get(pnr);
+            if (b == null) { r.error = "Booking not found."; return r; }
+            if (!isAdmin) { r.error = "Only an admin can confirm a booking."; return r; }
+            if (b.status.equals("CONFIRMED")) { r.error = "Booking " + pnr + " is already confirmed."; return r; }
+            if (b.status.equals("CANCELLED")) { r.error = "Booking " + pnr + " was cancelled."; return r; }
+            b.status = "CONFIRMED";
+            b.confirmedAt = LocalDateTime.now().toString();
+            db.saveQuietly();
+            r.booking = b;
+        }
+        return r;
+    }
+
+    public int pendingCount() {
+        int n = 0;
+        for (Booking b : db.bookings.values()) if (b.status.equals("PENDING")) n++;
+        return n;
     }
 
     public Result cancel(String pnr, String requesterId, boolean isAdmin) {

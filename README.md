@@ -2,12 +2,25 @@
 
 Full flight-ticket booking app in **pure Java (no external dependencies)** + HTML/CSS/JS frontend.
 
-- **Search & booking flow** — from/to/date, flight list, seat map (30×6), passengers, mock payment, instant e-ticket with PNR
+- **Search & booking flow** — from/to/date, flight list, seat map (30×6), passengers, mock payment
+- **Admin approval flow** — a new booking is **PENDING**; the e-ticket is issued only after an admin confirms it
 - **Auth + My bookings** — register/login (token), booking history, view/print ticket, cancel with refund
 - **Payments mock** — test card validation, fake `PAY-XXXX` transactions
-- **Admin dashboard** — revenue/booking stats, add/edit/delete flights, all-bookings tab with search
+- **Admin dashboard** — revenue/booking stats, pending-approval queue, add/edit/delete flights, all-bookings tab with search
 - **Airport map** — real interactive map (Leaflet + OpenStreetMap) with airport locations and route network
 - **Persistence** — `data/*.json` files (flights, users, bookings)
+
+## ⏳ Booking approval flow
+
+1. The customer books a flight and pays (mock) → the booking is created with status **PENDING**.
+   The seat is held so nobody else can take it, but **no e-ticket is issued yet**.
+2. The customer sees the booking as `PENDING · awaiting admin` with the note
+   *"Waiting for admin confirmation"* — printing is locked.
+3. The admin opens **Admin → 🎫 Bookings**, selects the pending row and clicks **✓ Confirm booking**.
+4. The booking becomes **CONFIRMED**, the e-ticket is issued and printing unlocks for the customer.
+   A pending booking can also be cancelled (which releases the seat).
+
+Status values: `PENDING` → `CONFIRMED` | `CANCELLED`. Revenue counts confirmed bookings only.
 
 ## 🖥️ Desktop app (macOS) — native Java window
 
@@ -84,7 +97,8 @@ java -cp target/classes com.airline.App --port 8080
 | GET | `/api/bookings` | Bearer | my bookings (all if admin) |
 | GET | `/api/bookings/{pnr}` | Bearer | e-ticket |
 | POST | `/api/bookings/{pnr}/cancel` | Bearer | cancel + free seats |
-| GET | `/api/admin/stats` | Admin | flights/users/revenue |
+| POST | `/api/bookings/{pnr}/confirm` | Admin | approve a pending booking, issue the e-ticket |
+| GET | `/api/admin/stats` | Admin | flights/users/revenue/pending |
 
 ## Project layout
 

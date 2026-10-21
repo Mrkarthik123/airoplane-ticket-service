@@ -10,9 +10,10 @@ public class Booking {
     public List<Map<String, Object>> passengers = new ArrayList<>();
     public List<String> seats = new ArrayList<>();
     public double totalPrice;
-    public String status = "CONFIRMED"; // CONFIRMED | CANCELLED
+    public String status = "PENDING"; // PENDING | CONFIRMED | CANCELLED
     public String paymentId;
     public String createdAt;
+    public String confirmedAt = "";
 
     public Map<String, Object> toJson() {
         Map<String, Object> m = new LinkedHashMap<>();
@@ -20,6 +21,7 @@ public class Booking {
         m.put("passengers", passengers); m.put("seats", seats);
         m.put("totalPrice", totalPrice); m.put("status", status);
         m.put("paymentId", paymentId); m.put("createdAt", createdAt);
+        m.put("confirmedAt", confirmedAt);
         return m;
     }
 
@@ -40,6 +42,7 @@ public class Booking {
         b.status = String.valueOf(m.getOrDefault("status", "CONFIRMED"));
         b.paymentId = String.valueOf(m.getOrDefault("paymentId", ""));
         b.createdAt = String.valueOf(m.getOrDefault("createdAt", ""));
+        b.confirmedAt = String.valueOf(m.getOrDefault("confirmedAt", ""));
         return b;
     }
 }

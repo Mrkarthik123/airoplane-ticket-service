@@ -274,6 +274,13 @@ public class App {
                 for (Booking bl : src) list.add(enrich(bl));
                 json(ex, 200, ok(Map.of("bookings", list))); return;
             }
+            if (path.startsWith("/api/bookings/") && path.endsWith("/confirm") && method.equals("POST")) {
+                User u = requireAdmin(ex); if (u == null) return;
+                String pnr = path.substring("/api/bookings/".length(), path.length() - "/confirm".length());
+                BookingService.Result r = bookings.confirm(pnr, true);
+                if (r.error != null) { json(ex, 400, err(r.error)); return; }
+                json(ex, 200, ok(Map.of("booking", enrich(r.booking)))); return;
+            }
             if (path.startsWith("/api/bookings/") && path.endsWith("/cancel") && method.equals("POST")) {
                 User u = requireLogin(ex); if (u == null) return;
                 String pnr = path.substring("/api/bookings/".length(), path.length() - "/cancel".length());
@@ -298,6 +305,7 @@ public class App {
                 Map<String, Object> s = new LinkedHashMap<>();
                 s.put("flights", db.flights.size()); s.put("users", db.users.size());
                 s.put("bookings", db.bookings.size()); s.put("activeBookings", active);
+                s.put("pendingBookings", bookings.pendingCount());
                 s.put("revenue", revenue);
                 json(ex, 200, ok(Map.of("stats", s))); return;
             }

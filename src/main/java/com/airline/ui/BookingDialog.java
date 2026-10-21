@@ -304,6 +304,10 @@ public class BookingDialog extends JDialog {
             return;
         }
         dispose();
+        JOptionPane.showMessageDialog(getOwner(),
+                "Booking submitted.\n\nPNR: " + r.booking.pnr + "\nStatus: PENDING — waiting for admin confirmation.\n" +
+                        "Your e-ticket is issued as soon as an admin approves this booking.",
+                "Booking pending approval", JOptionPane.INFORMATION_MESSAGE);
         new TicketDialog(getOwner(), r.booking, flight).setVisible(true);
     }
 }
